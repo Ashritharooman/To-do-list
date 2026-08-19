@@ -1,0 +1,2 @@
+const windows = new Map()
+export function aiRateLimit(req, _res, next) { const now = Date.now(); const windowMs = 60 * 60 * 1000; const max = Number(process.env.AI_RATE_LIMIT || 20); const key = String(req.user.id); const current = windows.get(key) || { started: now, count: 0 }; if (now - current.started >= windowMs) { current.started = now; current.count = 0 } current.count += 1; windows.set(key, current); if (current.count > max) return next(Object.assign(new Error('AI request limit exceeded. Try again later.'), { status: 429, code: 'AI_RATE_LIMITED' })); next() }
